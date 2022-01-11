@@ -1,11 +1,15 @@
 package io.github.datt16.compose_tutorial
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,7 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -29,7 +33,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ComposeTutorialTheme {
-                Conversation(messages = msgList)
+                Conversation(msgList)
             }
         }
     }
@@ -66,8 +70,16 @@ fun CardView(msg: Message) {
         // Spacer: 隙間を入れられる, マージンの代わりかな?
         Spacer(modifier = Modifier.width(8.dp))
 
+        // isExpanded: カードの展開の制御に使用
+        // 多分 ReactのuseStateみたいな感じ
+        // こんな書き方も可能 var (isExpanded, setIsExpanded) = remember { mutableStateOf(false) }
+        var isExpanded by remember { mutableStateOf(false) }
+
+        // animateColorAsState: 色がアニメーションで変えることができる
+        val surfaceColor by animateColorAsState(if (isExpanded) MaterialTheme.colors.primary else MaterialTheme.colors.surface)
+
         // Column: 縦に並べるレイアウト
-        Column {
+        Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
             Text(
                 text = msg.title,
                 color = MaterialTheme.colors.secondaryVariant,
@@ -76,11 +88,20 @@ fun CardView(msg: Message) {
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Surface(shape = MaterialTheme.shapes.medium, elevation = 1.dp) {
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                elevation = 1.dp,
+                color = surfaceColor,
+                modifier = Modifier
+                    .animateContentSize()
+                    .padding(1.dp)
+            ) {
                 Text(
                     text = msg.description,
                     style = MaterialTheme.typography.body2,
-                    modifier = Modifier.padding(all = 4.dp)
+                    modifier = Modifier.padding(all = 4.dp),
+                    // 三項演算子の代わりに if 使う
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 1
                 )
             }
 
