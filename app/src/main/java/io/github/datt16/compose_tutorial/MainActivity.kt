@@ -1,6 +1,5 @@
 package io.github.datt16.compose_tutorial
 
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,6 +7,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -20,19 +21,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.datt16.compose_tutorial.ui.theme.ComposeTutorialTheme
 
+
+val msgList = Messages().sampleMessageList
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ComposeTutorialTheme {
-                // A surface container using the 'background' color from the theme
-                CardView(msg = Message("Title", "This is Sample Card"))
+                Conversation(messages = msgList)
             }
         }
     }
 }
 
-data class Message(val title: String, val description: String)
+@Composable
+fun Conversation(messages: List<Message>) {
+    LazyColumn {
+        items(messages) { message ->
+            CardView(message)
+        }
+    }
+}
 
 @Composable
 fun CardView(msg: Message) {
@@ -80,13 +90,12 @@ fun CardView(msg: Message) {
 
 }
 
-// @Preview: プレビューの定義
-@Preview(name = "Light Mode", showBackground = true)
-@Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+
+@Preview(showBackground = true)
 
 @Composable
-fun DefaultPreview() {
+fun PreviewConversation() {
     ComposeTutorialTheme {
-        CardView(msg = Message("Title", "This is sample Card"))
+        Conversation(messages = msgList)
     }
 }
